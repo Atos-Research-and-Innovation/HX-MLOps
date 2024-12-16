@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: torchserve-service-grpc-api
+  labels:
+    app: torchserve-service-grpc-api
+  {{- if .Values.grpcApiService.annotations }}
+  annotations: {{- toYaml .Values.grpcApiService.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.grpcApiService.type }}
+  {{- if and (eq .Values.grpcApiService.type "ClusterIP") .Values.grpcApiService.clusterIP }}
+  clusterIP: {{ .Values.grpcApiService.clusterIP }}
+  {{- end }}
+  ports:
+    - name: torchserve-grpc-api
+      port: 7070
+      protocol: TCP
+      {{- if (and (eq .Values.grpcApiService.type "NodePort") ( .Values.grpcApiService.nodePort)) }}
+      nodePort: {{ .Values.grpcApiService.nodePort }}
+      {{- else }}
+      targetPort: 7070
+      {{- end }}
+  selector:
+    app: torchserve

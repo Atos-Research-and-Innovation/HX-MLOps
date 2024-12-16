@@ -1,0 +1,109 @@
+# PIPELINE DEFINITION
+# Name: inference-ispm-pipeline
+# Description: Pipeline to apply inference over ISPM model.
+# Inputs:
+#    dbhost: str [Default: 'timescale-service.default.svc.cluster.local']
+#    dbname: str [Default: 'ile']
+#    dbpassword: str [Default: 'admin']
+#    dbport: str [Default: '5432']
+#    dbuser: str [Default: 'admin']
+#    torchserve_inference_url: str [Default: 'http://torchserve-service-rest-inference.default.svc.cluster.local:8080/predictions/ispm']
+components:
+  comp-inference:
+    executorLabel: exec-inference
+    inputDefinitions:
+      parameters:
+        dbhost:
+          parameterType: STRING
+        dbname:
+          parameterType: STRING
+        dbpassword:
+          parameterType: STRING
+        dbport:
+          parameterType: STRING
+        dbuser:
+          parameterType: STRING
+        torchserve_inference_url:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-inference:
+      container:
+        args:
+        - --dbname
+        - '{{$.inputs.parameters[''dbname'']}}'
+        - --dbuser
+        - '{{$.inputs.parameters[''dbuser'']}}'
+        - --dbpassword
+        - '{{$.inputs.parameters[''dbpassword'']}}'
+        - --dbhost
+        - '{{$.inputs.parameters[''dbhost'']}}'
+        - --dbport
+        - '{{$.inputs.parameters[''dbport'']}}'
+        - --torchserve_inference_url
+        - '{{$.inputs.parameters[''torchserve_inference_url'']}}'
+        command:
+        - python
+        - /app/stages/inference.py
+        image: localhost:32000/smlops-hexa-x-ii:1.0.0
+pipelineInfo:
+  description: Pipeline to apply inference over ISPM model.
+  name: inference-ispm-pipeline
+root:
+  dag:
+    tasks:
+      inference:
+        cachingOptions: {}
+        componentRef:
+          name: comp-inference
+        inputs:
+          parameters:
+            dbhost:
+              componentInputParameter: dbhost
+            dbname:
+              componentInputParameter: dbname
+            dbpassword:
+              componentInputParameter: dbpassword
+            dbport:
+              componentInputParameter: dbport
+            dbuser:
+              componentInputParameter: dbuser
+            torchserve_inference_url:
+              componentInputParameter: torchserve_inference_url
+        taskInfo:
+          name: inference
+  inputDefinitions:
+    parameters:
+      dbhost:
+        defaultValue: timescale-service.default.svc.cluster.local
+        isOptional: true
+        parameterType: STRING
+      dbname:
+        defaultValue: ile
+        isOptional: true
+        parameterType: STRING
+      dbpassword:
+        defaultValue: admin
+        isOptional: true
+        parameterType: STRING
+      dbport:
+        defaultValue: '5432'
+        isOptional: true
+        parameterType: STRING
+      dbuser:
+        defaultValue: admin
+        isOptional: true
+        parameterType: STRING
+      torchserve_inference_url:
+        defaultValue: http://torchserve-service-rest-inference.default.svc.cluster.local:8080/predictions/ispm
+        isOptional: true
+        parameterType: STRING
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.8.0
+---
+platforms:
+  kubernetes:
+    deploymentSpec:
+      executors:
+        exec-inference:
+          imagePullPolicy: Always

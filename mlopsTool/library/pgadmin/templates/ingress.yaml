@@ -1,0 +1,28 @@
+{{- if .Values.consoleIngress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-pgadmin
+  labels:
+    app: ingress-pgadmin
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^(/pgadmin)$ $1/ permanent;  # Rewrite /pgadmin to /pgadmin/ to handle missing trailing slash
+      sub_filter 'href="/' 'href="/pgadmin/';
+      sub_filter 'src="/' 'src="/pgadmin/';
+      sub_filter_once off;  # Apply sub_filter to all occurrences
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /pgadmin(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: pgadmin-ui-service
+                port: 
+                  number: 80
+{{- end }}

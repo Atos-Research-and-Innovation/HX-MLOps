@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: torchserve-deployment
+  labels:
+    app: torchserve
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: torchserve
+  template:
+    metadata:
+      labels:
+        app: torchserve
+    spec:
+      {{ if .Values.imageCredentials.enabled }} 
+      imagePullSecrets:
+      - name: registry-torchserve-credentials
+      {{ end }}
+      containers:
+      - name: torchserve
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        ports:
+        - containerPort: 8080
+        - containerPort: 8081
+        - containerPort: 8082
+        - containerPort: 7070
+        - containerPort: 7071
+        env:
+        - name: TS_ENABLE_MODEL_API
+          value: "true"
+        volumeMounts:
+          - name: torchserve-storage
+            mountPath: /home/model-server/model-store  # Mount path in the container
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "echo 'enable_model_api=true' >> '/home/model-server/config.properties'"]
+      volumes:
+      - name: torchserve-storage
+        persistentVolumeClaim:
+          claimName: torchserve-pvc
+      securityContext:
+        runAsUser: 0  
+        fsGroup: 0 

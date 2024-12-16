@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: timescale-deployment
+  labels:
+    app: timescale
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: timescale
+  template:
+    metadata:
+      labels:
+        app: timescale
+    spec:
+      {{ if .Values.imageCredentials.enabled }}
+      imagePullSecrets:
+      - name: registry-timescale-credentials
+      {{ end }}
+      containers:
+      - name: timescale
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy  | default "IfNotPresent" }}
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: timescale-credentials
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: timescale-credentials
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_DB
+          value: {{ .Values.image.env.timescaleDbName }}
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: timescale-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: timescale-storage
+        persistentVolumeClaim:
+          claimName: timescale-pvc

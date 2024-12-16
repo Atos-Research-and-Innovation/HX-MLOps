@@ -1,0 +1,120 @@
+services:
+  minio:
+    image: docker.io/bitnami/minio:2024.8.26
+    container_name: minio-sharemodelsapi
+    restart: always
+    ports:
+      - 9002:9000
+      - 9001:9001
+    networks:
+      hexanetwork:
+        aliases:
+          - minio.hexaxii.com
+    volumes:
+      - 'minio_data:/data'
+    environment:
+      - MINIO_ROOT_USER=minio
+      - MINIO_ROOT_PASSWORD=minio123
+      # - MINIO_DEFAULT_BUCKETS=your_bucket_name
+
+  timescaledb:
+    image: timescale/timescaledb-ha:pg16
+    container_name: timescaledb-sharemodelsapi
+    restart: always
+    ports:
+      - 9999:5432
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - timescaledb_data:/var/lib/postgresql/data
+    networks:
+      hexanetwork:
+        aliases:
+          - timescaledb.hexaxii.com
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_hexa
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@eviden.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      hexanetwork:
+        aliases:
+          - pgadmin.hexaxii.com
+
+  modelsharingapi:
+    image: modelsharing-api:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile_modelsharing
+    user: 1000:1000
+    ports:
+      - 8080:8080
+    container_name: modelsharing
+    restart: always
+    entrypoint: sleep infinity
+    environment:
+      POSTGRES_HOST: timescaledb.hexaxii.com
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DBNAME: modelsharing
+      MINIO_URL: minio.hexaxii.com
+      MINIO_PORT: 9000
+      MINIO_USER: minio
+      MINIO_PASSWORD: minio123
+      MINIO_BUCKET: modelsharing-registry
+    networks:
+      hexanetwork:
+        aliases:
+          - modelsharingapi.hexaxii.com
+    volumes:
+      - .:/app
+      - ../hx-demo:/app/hx-demo
+  
+  datasetsharingapi:
+    image: datasetsharing-api:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile_datasetsharing
+    user: 1000:1000
+    ports:
+      - 8081:8080
+    container_name: datasetsharing
+    restart: always
+    entrypoint: sleep infinity
+    environment:
+      POSTGRES_HOST: timescaledb.hexaxii.com
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DBNAME: datasetsharing
+      MINIO_URL: minio.hexaxii.com
+      MINIO_PORT: 9000
+      MINIO_USER: minio
+      MINIO_PASSWORD: minio123
+      MINIO_BUCKET: datasetsharing-registry
+    networks:
+      hexanetwork:
+        aliases:
+          - datasetsharingapi.hexaxii.com
+    volumes:
+      - .:/app
+      - ../hx-demo:/app/hx-demo
+
+
+networks:
+  hexanetwork:
+    driver: bridge
+
+volumes:
+  minio_data:
+  timescaledb_data:
+  pgadmin_data:

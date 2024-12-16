@@ -1,0 +1,249 @@
+# PIPELINE DEFINITION
+# Name: pytorch-cpu-pipeline
+# Description: Training pipeline SWV domain (ISPM model)
+# Inputs:
+#    datagen_params: dict [Default: {}]
+#    minio_params: dict [Default: {'password': 'minio123', 'user': 'minio', 'host': 'minio-service-api.default.svc.cluster.local', 'bucket_name': 'code-repository', 'port': '9000'}]
+#    modelsharing_api_url: str [Default: 'http://modelsharing-service.default.svc.cluster.local:8080']
+#    pusher_params: dict [Default: {'version': '1.0.0', 'library': 'pytorch', 'parameters': {'batch_size': 64.0, 'optimizer': 'adam', 'momentum': 0.9, 'learning_rate': 0.01, 'epochs': 10.0}, 'tag': 'neuralNetwork', 'status': 'production', 'libraryVersion': '0.24', 'domain': 'deeplearning', 'name': 'ispm'}]
+#    torchserve_params: dict [Default: {'torchserve_management_api': 'http://torchserve-service-rest-managment.default:8081', 'nn_file_path': 'models/initialDNN.py', 'model_output_filename': 'model.pth'}]
+components:
+  comp-condition-1:
+    dag:
+      tasks:
+        pusher:
+          cachingOptions: {}
+          componentRef:
+            name: comp-pusher
+          inputs:
+            parameters:
+              minio_params:
+                componentInputParameter: pipelinechannel--minio_params
+              modelsharing_api_url:
+                componentInputParameter: pipelinechannel--modelsharing_api_url
+              pusher_params:
+                componentInputParameter: pipelinechannel--pusher_params
+              torchserve_params:
+                componentInputParameter: pipelinechannel--torchserve_params
+          taskInfo:
+            name: pusher
+    inputDefinitions:
+      parameters:
+        pipelinechannel--eval-eval_output:
+          parameterType: STRING
+        pipelinechannel--minio_params:
+          parameterType: STRUCT
+        pipelinechannel--modelsharing_api_url:
+          parameterType: STRING
+        pipelinechannel--pusher_params:
+          parameterType: STRUCT
+        pipelinechannel--torchserve_params:
+          parameterType: STRUCT
+  comp-datagen:
+    executorLabel: exec-datagen
+    inputDefinitions:
+      parameters:
+        datagen_params:
+          parameterType: STRUCT
+        minio_params:
+          parameterType: STRUCT
+  comp-eval:
+    executorLabel: exec-eval
+    inputDefinitions:
+      parameters:
+        minio_params:
+          parameterType: STRUCT
+    outputDefinitions:
+      parameters:
+        eval_output:
+          parameterType: STRING
+  comp-pusher:
+    executorLabel: exec-pusher
+    inputDefinitions:
+      parameters:
+        minio_params:
+          parameterType: STRUCT
+        modelsharing_api_url:
+          parameterType: STRING
+        pusher_params:
+          parameterType: STRUCT
+        torchserve_params:
+          parameterType: STRUCT
+  comp-trainer:
+    executorLabel: exec-trainer
+    inputDefinitions:
+      parameters:
+        minio_params:
+          parameterType: STRUCT
+deploymentSpec:
+  executors:
+    exec-datagen:
+      container:
+        args:
+        - --minio_params
+        - '{{$.inputs.parameters[''minio_params'']}}'
+        - --datagen_params
+        - '{{$.inputs.parameters[''datagen_params'']}}'
+        command:
+        - python
+        - /app/stages/datagen.py
+        image: localhost:32000/smlops-hexa-x-ii:1.0.0
+    exec-eval:
+      container:
+        args:
+        - --minio_params
+        - '{{$.inputs.parameters[''minio_params'']}}'
+        - --eval_output
+        - '{{$.outputs.parameters[''eval_output''].output_file}}'
+        command:
+        - python
+        - /app/stages/eval.py
+        image: localhost:32000/smlops-hexa-x-ii:1.0.0
+    exec-pusher:
+      container:
+        args:
+        - --modelsharing_api_url
+        - '{{$.inputs.parameters[''modelsharing_api_url'']}}'
+        - --minio_params
+        - '{{$.inputs.parameters[''minio_params'']}}'
+        - --torchserve_params
+        - '{{$.inputs.parameters[''torchserve_params'']}}'
+        - --pusher_params
+        - '{{$.inputs.parameters[''pusher_params'']}}'
+        command:
+        - python
+        - /app/stages/pusher.py
+        image: localhost:32000/smlops-hexa-x-ii:1.0.0
+    exec-trainer:
+      container:
+        args:
+        - --minio_params
+        - '{{$.inputs.parameters[''minio_params'']}}'
+        command:
+        - python
+        - /app/stages/trainer.py
+        image: localhost:32000/smlops-hexa-x-ii:1.0.0
+pipelineInfo:
+  description: Training pipeline SWV domain (ISPM model)
+  name: pytorch-cpu-pipeline
+root:
+  dag:
+    tasks:
+      condition-1:
+        componentRef:
+          name: comp-condition-1
+        dependentTasks:
+        - eval
+        inputs:
+          parameters:
+            pipelinechannel--eval-eval_output:
+              taskOutputParameter:
+                outputParameterKey: eval_output
+                producerTask: eval
+            pipelinechannel--minio_params:
+              componentInputParameter: minio_params
+            pipelinechannel--modelsharing_api_url:
+              componentInputParameter: modelsharing_api_url
+            pipelinechannel--pusher_params:
+              componentInputParameter: pusher_params
+            pipelinechannel--torchserve_params:
+              componentInputParameter: torchserve_params
+        taskInfo:
+          name: condition-1
+        triggerPolicy:
+          condition: inputs.parameter_values['pipelinechannel--eval-eval_output']
+            == 'ok'
+      datagen:
+        cachingOptions: {}
+        componentRef:
+          name: comp-datagen
+        inputs:
+          parameters:
+            datagen_params:
+              componentInputParameter: datagen_params
+            minio_params:
+              componentInputParameter: minio_params
+        taskInfo:
+          name: datagen
+      eval:
+        cachingOptions: {}
+        componentRef:
+          name: comp-eval
+        dependentTasks:
+        - trainer
+        inputs:
+          parameters:
+            minio_params:
+              componentInputParameter: minio_params
+        taskInfo:
+          name: eval
+      trainer:
+        cachingOptions: {}
+        componentRef:
+          name: comp-trainer
+        dependentTasks:
+        - datagen
+        inputs:
+          parameters:
+            minio_params:
+              componentInputParameter: minio_params
+        taskInfo:
+          name: trainer
+  inputDefinitions:
+    parameters:
+      datagen_params:
+        defaultValue: {}
+        isOptional: true
+        parameterType: STRUCT
+      minio_params:
+        defaultValue:
+          bucket_name: code-repository
+          host: minio-service-api.default.svc.cluster.local
+          password: minio123
+          port: '9000'
+          user: minio
+        isOptional: true
+        parameterType: STRUCT
+      modelsharing_api_url:
+        defaultValue: http://modelsharing-service.default.svc.cluster.local:8080
+        isOptional: true
+        parameterType: STRING
+      pusher_params:
+        defaultValue:
+          domain: deeplearning
+          library: pytorch
+          libraryVersion: '0.24'
+          name: ispm
+          parameters:
+            batch_size: 64.0
+            epochs: 10.0
+            learning_rate: 0.01
+            momentum: 0.9
+            optimizer: adam
+          status: production
+          tag: neuralNetwork
+          version: 1.0.0
+        isOptional: true
+        parameterType: STRUCT
+      torchserve_params:
+        defaultValue:
+          model_output_filename: model.pth
+          nn_file_path: models/initialDNN.py
+          torchserve_management_api: http://torchserve-service-rest-managment.default:8081
+        isOptional: true
+        parameterType: STRUCT
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.8.0
+---
+platforms:
+  kubernetes:
+    deploymentSpec:
+      executors:
+        exec-datagen:
+          imagePullPolicy: Always
+        exec-eval:
+          imagePullPolicy: Always
+        exec-pusher:
+          imagePullPolicy: Always
+        exec-trainer:
+          imagePullPolicy: Always

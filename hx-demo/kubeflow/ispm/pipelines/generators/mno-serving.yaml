@@ -1,0 +1,82 @@
+# PIPELINE DEFINITION
+# Name: model-adquisition-and-serving-pipeline
+# Description: Pipeline to get the model from Software Vendor Domain through ModelSharing API and serve it in torchserve component .
+# Inputs:
+#    model_params: dict [Default: {'version': '1.0.0', 'status': 'production', 'tag': 'neuralNetwork', 'domain': 'deeplearning', 'name': 'ispm'}]
+#    modelsharing_api_url: str [Default: 'http://13.39.193.167:30081']
+#    torchserve_management_api: str [Default: 'http://torchserve-service-rest-managment.default:8081']
+components:
+  comp-model-adquisition-and-serving:
+    executorLabel: exec-model-adquisition-and-serving
+    inputDefinitions:
+      parameters:
+        model_params:
+          parameterType: STRUCT
+        modelsharing_api_url:
+          parameterType: STRING
+        torchserve_management_api:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-model-adquisition-and-serving:
+      container:
+        args:
+        - --torchserve_management_api
+        - '{{$.inputs.parameters[''torchserve_management_api'']}}'
+        - --modelsharing_api_url
+        - '{{$.inputs.parameters[''modelsharing_api_url'']}}'
+        - --model_params
+        - '{{$.inputs.parameters[''model_params'']}}'
+        command:
+        - python
+        - /app/stages/model_adquisition_and_serving.py
+        image: localhost:32000/smlops-hexa-x-ii:1.0.0
+pipelineInfo:
+  description: Pipeline to get the model from Software Vendor Domain through ModelSharing
+    API and serve it in torchserve component .
+  name: model-adquisition-and-serving-pipeline
+root:
+  dag:
+    tasks:
+      model-adquisition-and-serving:
+        cachingOptions: {}
+        componentRef:
+          name: comp-model-adquisition-and-serving
+        inputs:
+          parameters:
+            model_params:
+              componentInputParameter: model_params
+            modelsharing_api_url:
+              componentInputParameter: modelsharing_api_url
+            torchserve_management_api:
+              componentInputParameter: torchserve_management_api
+        taskInfo:
+          name: model-adquisition-and-serving
+  inputDefinitions:
+    parameters:
+      model_params:
+        defaultValue:
+          domain: deeplearning
+          name: ispm
+          status: production
+          tag: neuralNetwork
+          version: 1.0.0
+        isOptional: true
+        parameterType: STRUCT
+      modelsharing_api_url:
+        defaultValue: http://13.39.193.167:30081
+        isOptional: true
+        parameterType: STRING
+      torchserve_management_api:
+        defaultValue: http://torchserve-service-rest-managment.default:8081
+        isOptional: true
+        parameterType: STRING
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.8.0
+---
+platforms:
+  kubernetes:
+    deploymentSpec:
+      executors:
+        exec-model-adquisition-and-serving:
+          imagePullPolicy: Always

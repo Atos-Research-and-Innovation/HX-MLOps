@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  labels:
+    app: postgres-service
+  {{- if .Values.postgresService.annotations }}
+  annotations: {{- toYaml .Values.postgresService.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.postgresService.type }}
+  {{- if and (eq .Values.postgresService.type "ClusterIP") .Values.postgresService.clusterIP }}
+  clusterIP: {{ .Values.postgresService.clusterIP }}
+  {{- end }}
+  ports:
+    - name: postgres
+      port: 5432
+      protocol: TCP
+      {{- if (and (eq .Values.postgresService.type "NodePort") ( .Values.postgresService.nodePort)) }}
+      nodePort: {{ .Values.postgresService.nodePort }}
+      {{- else }}
+      targetPort: 5432
+      {{- end }}
+  selector:
+    app: postgres

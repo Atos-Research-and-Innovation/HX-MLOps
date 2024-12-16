@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: datasetsharing-service
+  labels:
+    app: datasetsharing-service
+  {{- if .Values.datasetsharingService.annotations }}
+  annotations: {{- toYaml .Values.datasetsharingService.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.datasetsharingService.type }}
+  {{- if and (eq .Values.datasetsharingService.type "ClusterIP") .Values.datasetsharingService.clusterIP }}
+  clusterIP: {{ .Values.datasetsharingService.clusterIP }}
+  {{- end }}
+  ports:
+    - name: datasetsharing
+      port: 8080
+      protocol: TCP
+      {{- if (and (eq .Values.datasetsharingService.type "NodePort") ( .Values.datasetsharingService.nodePort)) }}
+      nodePort: {{ .Values.datasetsharingService.nodePort }}
+      {{- else }}
+      targetPort: 8080
+      {{- end }}
+  selector:
+    app: datasetsharing

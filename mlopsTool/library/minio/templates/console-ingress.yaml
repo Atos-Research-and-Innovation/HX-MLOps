@@ -1,0 +1,28 @@
+{{- if .Values.consoleIngress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: console-ingress-minio
+  labels:
+    app: console-ingress-minio
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^(/minio)$ $1/ permanent;  # Rewrite /minio to /minio/ to handle missing trailing slash
+      sub_filter 'href="/' 'href="/minio/';
+      sub_filter 'src="/' 'src="/minio/';
+      sub_filter_once off;  # Apply sub_filter to all occurrences
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /minio(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: minio-service-console
+                port: 
+                  number: 9001
+{{- end }}

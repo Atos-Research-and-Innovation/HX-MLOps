@@ -1,0 +1,714 @@
+openapi: 3.0.3
+info:
+  title: Machine Learning Model Sharing - OpenAPI 3.0
+  description: |-
+    Machine Learning Model Sharing OpenAPI definition
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: imasd@optaresolutions.org
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+externalDocs:
+  description: HexaX II Project Link
+  url: https://hexa-x-ii.eu/
+servers:
+  - url: https://mlops.sustainability.hexaxii.org/api/v1
+tags:
+  - name: model
+    description: ML Model API
+    externalDocs:
+      description: Model Catalogue Operation APIs
+      url: https://mlops.sustainability.hexaxii.org/doc
+  - name: health
+    description: Health check API
+paths:
+  /health:
+    get:
+      tags:
+        - health
+      summary: Test service Health
+      description: Service Health Check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Succesful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden Request
+        '404':
+          description: Service status not found
+  /api/v1/model:
+    post:
+      tags:
+        - model
+      summary: addModel
+      description: Add a new model with metainfo
+      operationId: postModel
+      parameters:
+        - name: name
+          in: query
+          description: name of the model in the catalogue
+          required: true
+          schema:
+            type: string
+        - name: version
+          in: query
+          description: version of the model in the catalogue
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: status of the model in the catalogue
+          required: true
+          schema:
+            $ref: '#/components/schemas/Status'
+        - name: library
+          in: query
+          description: library of the model in the catalogue
+          required: true
+          schema:
+            type: string
+        - name: libraryVersion
+          in: query
+          description: library version of the model in the catalogue
+          required: true
+          schema:
+            type: string
+        - name: domain
+          in: query
+          description: domain of the model in the catalogue
+          required: true
+          schema:
+            type: string
+        - name: class
+          in: query
+          description: class of the model in the catalogue
+          required: true
+          schema:
+            type: string
+        - name: tag
+          in: query
+          description: tag of the model in the catalogue
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+              example: model_version.pkl
+      responses:
+        '200':
+          description: Succesful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelResponse'
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden Request
+        '404':
+          description: Service status not found
+      security:
+        - model_auth:
+            - write:model
+            - read:model
+  /api/v1/model/{modelId}/parameters:
+    post:
+      tags:
+        - model
+      summary: addModelParameters
+      description: Add model parameters
+      operationId: postModelParameters
+      parameters:
+        - name: modelId
+          in: path
+          description: Id of the model in the catalogue
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelParameters'
+      responses:
+        '200':
+          description: Succesful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelResponse'
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden Request
+        '404':
+          description: Service status not found
+      security:
+        - model_auth:
+          - write:model
+          - read:model
+    put:
+      tags:
+        - model
+      summary: updateModelParameters
+      description: Update model parameters
+      operationId: putModelParameters
+      parameters:
+        - name: modelId
+          in: path
+          description: Id of the model in the catalogue
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelParameters'
+      responses:
+        '200':
+          description: Succesful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelResponse'
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden Request
+        '404':
+          description: Service status not found
+      security:
+        - model_auth:
+          - write:model
+          - read:model
+  /api/v1/model/{modelId}/characteristics:
+    post:
+      tags:
+        - model
+      summary: addModelCharacteristics
+      description: Add model metainfo
+      operationId: postModelCharacteristics
+      parameters:
+        - name: modelId
+          in: path
+          description: Id of the model in the catalogue
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelCharacteristics'
+      responses:
+        '200':
+          description: Succesful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelResponse'
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden Request
+        '404':
+          description: Service status not found
+      security:
+        - model_auth:
+          - write:model
+          - read:model
+    put:
+      tags:
+        - model
+      summary: updateModelCharacteristics
+      description: Update model metainfo
+      operationId: putModelCharacteristics
+      parameters:
+        - name: modelId
+          in: path
+          description: Id of the model in the catalogue
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelCharacteristics'
+      responses:
+        '200':
+          description: Succesful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelResponse'
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden Request
+        '404':
+          description: Service status not found
+      security:
+        - model_auth:
+          - write:model
+          - read:model
+  /api/v1/model/{modelId}:
+    get:
+      tags:
+        - model
+      summary: getModelByIdAndVersion
+      description: Service to get a model by model Id and version (default value 'latest')
+      operationId: getModel
+      parameters:
+        - name: modelId
+          in: path
+          description: ID of the model in the catalogue
+          required: true
+          schema:
+            type: string
+        - name: version
+          in: query
+          description: Model version
+          required: false
+          schema:
+            type: string
+            default: latest
+      responses:
+        '200':
+          description: Succesful operation
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+                example: model_version.pkl
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden Request
+        '404':
+          description: Service status not found
+      security:
+        - model_auth:
+            - read:model
+    delete:
+        tags:
+          - model
+        summary: deleteModelByIdAndVersion
+        description: Service to delete a model and metainfo by model Id
+        operationId: deleteModel
+        parameters:
+          - name: modelId
+            in: path
+            description: ID of the model in the catalogue
+            required: true
+            schema:
+              type: string
+          - name: version
+            in: query
+            description: version of the model in the catalogue
+            required: true
+            schema:
+              type: string
+        responses:
+          '200':
+            description: Succesful operation
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ModelResponse'
+          '400':
+            description: Bad Request
+          '403':
+            description: Forbidden Request
+          '404':
+            description: Service status not found
+        security:
+        - model_auth:
+            - write:model
+            - read:model
+    patch:
+        tags:
+          - model
+        summary: patchModelMetaInfo
+        description: Service to update model information by model Id
+        operationId: patchModel
+        parameters:
+          - name: modelId
+            in: path
+            description: ID of the model in the catalogue
+            required: true
+            schema:
+              type: string
+        requestBody:
+          content:
+            application/json:
+                schema:
+                  $ref: '#/components/schemas/ModelInfo'
+        responses:
+          '200':
+            description: Succesful operation
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ModelResponse'
+          '400':
+            description: Bad Request
+          '403':
+            description: Forbidden Request
+          '404':
+            description: Service status not found
+        security:
+        - model_auth:
+            - write:model
+            - read:model
+    put:
+        tags:
+          - model
+        summary: updateModel
+        description: Service to get a model by model Id
+        operationId: updateModel
+        parameters:
+          - name: modelId
+            in: path
+            description: ID of the model in the catalogue
+            required: true
+            schema:
+              type: string
+          - name: version
+            in: query
+            description: version of the model in the catalogue
+            required: true
+            schema:
+              type: string
+          - name: status
+            in: query
+            description: status of the model in the catalogue
+            required: false
+            schema:
+              type: string
+              enum:
+                - production
+                - staging
+                - development
+          - name: tag
+            in: query
+            description: tag of the model in the catalogue
+            required: false
+            schema:
+              type: string
+        requestBody:
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+                example: model_version.pkl
+        responses:
+          '200':
+            description: Succesful operation
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ModelResponse'
+          '400':
+            description: Bad Request
+          '403':
+            description: Forbidden Request
+          '404':
+            description: Service status not found
+        security:
+        - model_auth:
+            - write:model
+            - read:model
+  /api/v1/model/{modelId}/data:
+    get:
+      tags:
+        - model
+      summary: getModelInfo
+      description: Service to get a model by model Id
+      operationId: getModelInfo
+      parameters:
+        - name: modelId
+          in: path
+          description: ID of the model in the catalogue
+          required: true
+          schema:
+            type: string
+        - name: version
+          in: query
+          description: Model version
+          required: true
+          schema:
+            type: string
+            default: latest
+      responses:
+        '200':
+          description: Succesful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelResponse'
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden Request
+        '404':
+          description: Service status not found
+      security:
+        - model_auth:
+            - read:model
+  /api/v1/model/catalog:
+    get:
+      tags:
+        - model
+      summary: getModelCatalogByFilters
+      description: Service to get a model by model Id
+      operationId: getModelCatalog
+      parameters:
+        - name: domain
+          in: query
+          description: Domain that need to be considered for filter
+          required: false
+          explode: true
+          schema:
+            type: string
+        - name: class
+          in: query
+          description: Model class that need to be considered for filter
+          required: false
+          explode: true
+          schema:
+            type: string
+        - name: tag
+          in: query
+          description: Tag that need to be considered for filter
+          required: false
+          explode: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Status value that need to be considered for filter
+          required: false
+          explode: true
+          schema:
+            type: string
+            default: production
+            enum:
+              - production
+              - staging
+              - development
+      responses:
+        '200':
+          description: Succesful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelCatalog'
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden Request
+        '404':
+          description: Service status not found
+      security:
+        - model_auth:
+            - read:model
+components:
+  schemas:
+    Health:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Heatlh Status
+          example: UP
+          enum:
+            - UP
+            - DOWN
+    Model:
+      type: object
+      properties:
+        modelName:
+          type: string
+          description: Model name
+          example: if_9897GA78
+        version:
+          type: string
+          example: v1.0.0
+        status:
+          type: string
+          description: model status
+          example: production
+          enum:
+            - production
+            - staging
+            - training
+        library:
+          type: string
+          example: scikit_learn
+        libraryVersion:
+          type: string
+          example: 1.1.2
+        domain:
+          type: string
+          example: classification
+        class:
+          type: string
+          example: Random Forest
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        tag:
+          type: string
+          example: network_alarms_classification
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelParameters'
+        characteristics:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelCharacteristics'
+      xml:
+        name: model
+    ModelInfo:
+      type: object
+      properties:
+        version:
+          type: string
+          example: v1.0.0
+        status:
+          type: string
+          description: model status
+          example: production
+          enum:
+            - production
+            - staging
+            - training
+        updated:
+          type: string
+          format: date-time
+        tag:
+          type: string
+          example: network_alarms_classification
+    ModelResponse:
+      type: object
+      properties:
+        modelId:
+          type: string
+          description: Model Id
+          example: lajskl-js28hd8-9280-089008
+        modelName:
+          type: string
+          description: Model name
+          example: if_9897GA78
+        version:
+          type: string
+          example: v1.0.0
+        status:
+          type: string
+          description: model status
+          example: production
+          enum:
+            - production
+            - staging
+            - training
+        library:
+          type: string
+          example: scikit_learn
+        libraryVersion:
+          type: string
+          example: 1.1.2
+        domain:
+          type: string
+          example: classification
+        class:
+          type: string
+          example: Random Forest
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        tag:
+          type: string
+          example: network_alarms_classification
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelParameters'
+        characteristics:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelCharacteristics'
+      xml:
+        name: model_response
+    ModelParameters:
+      type: object
+      properties:
+        name:
+          type: string
+          example: contamination
+        value:
+          type: string
+          example: 0.03
+    ModelCharacteristics:
+      type: object
+      properties:
+        name:
+          type: string
+          example: sensibility
+        value:
+          type: string
+          example: 0.83
+    Status:
+      type: string
+      description: model status
+      example: production
+      enum:
+        - production
+        - staging
+        - training
+    ModelCatalog:
+      type: object
+      properties:
+        catalogue:
+          type: array
+          xml:
+            name: catalogue
+            wrapped: true
+          items:
+            $ref: '#/components/schemas/ModelResponse'
+  securitySchemes:
+    model_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://mlops.sustainability.hexaxii.org/api/v1
+          scopes:
+            write:model: add and update models and info
+            read:model: get model anf models info
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header

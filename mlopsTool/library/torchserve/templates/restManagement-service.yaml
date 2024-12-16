@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: torchserve-service-rest-managment
+  labels:
+    app: torchserve-service-rest-managment
+  {{- if .Values.restManagmentService.annotations }}
+  annotations: {{- toYaml .Values.restManagmentService.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.restManagmentService.type }}
+  {{- if and (eq .Values.restManagmentService.type "ClusterIP") .Values.restManagmentService.clusterIP }}
+  clusterIP: {{ .Values.restManagmentService.clusterIP }}
+  {{- end }}
+  ports:
+    - name: torchserve-rest-managment
+      port: 8081
+      protocol: TCP
+      {{- if (and (eq .Values.restManagmentService.type "NodePort") ( .Values.restManagmentService.nodePort)) }}
+      nodePort: {{ .Values.restManagmentService.nodePort }}
+      {{- else }}
+      targetPort: 8081
+      {{- end }}
+  selector:
+    app: torchserve

@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: modelsharing-service
+  labels:
+    app: modelsharing-service
+  {{- if .Values.modelsharingService.annotations }}
+  annotations: {{- toYaml .Values.modelsharingService.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.modelsharingService.type }}
+  {{- if and (eq .Values.modelsharingService.type "ClusterIP") .Values.modelsharingService.clusterIP }}
+  clusterIP: {{ .Values.modelsharingService.clusterIP }}
+  {{- end }}
+  ports:
+    - name: modelsharing
+      port: 8080
+      protocol: TCP
+      {{- if (and (eq .Values.modelsharingService.type "NodePort") ( .Values.modelsharingService.nodePort)) }}
+      nodePort: {{ .Values.modelsharingService.nodePort }}
+      {{- else }}
+      targetPort: 8080
+      {{- end }}
+  selector:
+    app: modelsharing

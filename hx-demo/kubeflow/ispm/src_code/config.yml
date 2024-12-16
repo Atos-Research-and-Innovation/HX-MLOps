@@ -1,0 +1,10 @@
+pipeline:
+  version:
+  name:
+
+
+minio:
+  host: 
+  port:
+  user: 
+  password: 

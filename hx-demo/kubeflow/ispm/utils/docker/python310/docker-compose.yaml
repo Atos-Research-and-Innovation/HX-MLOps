@@ -1,0 +1,6 @@
+services: 
+
+  python310: 
+    build: .
+    image: python310-slim:1.0.0
+    entrypoint: sleep infinity

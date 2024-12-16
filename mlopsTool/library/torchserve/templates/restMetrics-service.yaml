@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: torchserve-service-rest-metrics
+  labels:
+    app: torchserve-service-rest-metrics
+  {{- if .Values.restMetricsService.annotations }}
+  annotations: {{- toYaml .Values.restMetricsService.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.restMetricsService.type }}
+  {{- if and (eq .Values.restMetricsService.type "ClusterIP") .Values.restMetricsService.clusterIP }}
+  clusterIP: {{ .Values.restMetricsService.clusterIP }}
+  {{- end }}
+  ports:
+    - name: torchserve-rest-metrics
+      port: 8082
+      protocol: TCP
+      {{- if (and (eq .Values.restMetricsService.type "NodePort") ( .Values.restMetricsService.nodePort)) }}
+      nodePort: {{ .Values.restMetricsService.nodePort }}
+      {{- else }}
+      targetPort: 8082
+      {{- end }}
+  selector:
+    app: torchserve

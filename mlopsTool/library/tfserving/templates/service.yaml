@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tfserving-service
+spec:
+  selector:
+    app: tfserving
+  type: NodePort
+  ports:
+    - name: grpc
+      protocol: TCP
+      port: 8500
+      targetPort: 8500
+      nodePort: 31428
+    - name: rest
+      protocol: TCP
+      port: 8501
+      targetPort: 8501
+      nodePort: 31429

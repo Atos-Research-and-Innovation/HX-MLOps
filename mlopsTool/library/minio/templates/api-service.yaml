@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-service-api
+  labels:
+    app: minio-service-api
+  {{- if .Values.apiService.annotations }}
+  annotations: {{- toYaml .Values.apiService.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.apiService.type }}
+  {{- if and (eq .Values.apiService.type "ClusterIP") .Values.apiService.clusterIP }}
+  clusterIP: {{ .Values.apiService.clusterIP }}
+  {{- end }}
+  ports:
+    - name: minio-api
+      port: 9000
+      protocol: TCP
+      {{- if (and (eq .Values.apiService.type "NodePort") ( .Values.apiService.nodePort)) }}
+      nodePort: {{ .Values.apiService.nodePort }}
+      {{- else }}
+      targetPort: 9000
+      {{- end }}
+  selector:
+    app: minio

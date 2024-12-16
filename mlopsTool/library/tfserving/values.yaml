@@ -1,0 +1,26 @@
+
+replicaCount: 1
+
+imageCredentials:
+  enabled: true
+  registry: xxxx
+  username: xxxx
+  password: xxxx
+  email: xxxx
+
+image:
+  repository: registry.atosresearch.eu:18486/tensorflow-serving-s3
+  tag: "2.11.0"
+
+persistentVolumeClaim:
+  storage: 1Gi
+
+
+tfservingConfigmap:
+  S3_ENDPOINT: "http://minio-service.serving:9000"
+  MODEL_CONFIG_BASE_PATH: "/models/models.config"
+
+
+tfservingCredentials:
+  AWS_ACCESS_KEY_ID: minio
+  AWS_SECRET_ACCESS_KEY: minio123

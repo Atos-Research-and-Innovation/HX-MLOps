@@ -1,0 +1,88 @@
+# PIPELINE DEFINITION
+# Name: dataset-creation-pipeline
+# Description: Pipeline to create a dataset.
+# Inputs:
+#    dataset_params: dict [Default: {'version': '1.0.0', 'name': 'ispm', 'tag': 'timeseries', 'dataType': 'mixed', 'parameters': {'format': 'train_x and train_y dataframes', 'description': 'compressed pickles files in a zip file'}}]
+#    datasetsharing_api_url: str [Default: 'http://datasetsharing-service.default.svc.cluster.local:8080']
+#    timescale_db_params: dict [Default: {'password': 'admin', 'user': 'admin', 'dbname': 'ile', 'host': 'timescale-service.default.svc.cluster.local', 'port': '5432'}]
+components:
+  comp-dataset-creation:
+    executorLabel: exec-dataset-creation
+    inputDefinitions:
+      parameters:
+        dataset_params:
+          parameterType: STRUCT
+        datasetsharing_api_url:
+          parameterType: STRING
+        timescale_db_params:
+          parameterType: STRUCT
+deploymentSpec:
+  executors:
+    exec-dataset-creation:
+      container:
+        args:
+        - --datasetsharing_api_url
+        - '{{$.inputs.parameters[''datasetsharing_api_url'']}}'
+        - --timescale_db_params
+        - '{{$.inputs.parameters[''timescale_db_params'']}}'
+        - --dataset_params
+        - '{{$.inputs.parameters[''dataset_params'']}}'
+        command:
+        - python
+        - /app/stages/dataset_creation_and_sharing.py
+        image: localhost:32000/smlops-hexa-x-ii:1.0.0
+pipelineInfo:
+  description: Pipeline to create a dataset.
+  name: dataset-creation-pipeline
+root:
+  dag:
+    tasks:
+      dataset-creation:
+        cachingOptions: {}
+        componentRef:
+          name: comp-dataset-creation
+        inputs:
+          parameters:
+            dataset_params:
+              componentInputParameter: dataset_params
+            datasetsharing_api_url:
+              componentInputParameter: datasetsharing_api_url
+            timescale_db_params:
+              componentInputParameter: timescale_db_params
+        taskInfo:
+          name: dataset-creation
+  inputDefinitions:
+    parameters:
+      dataset_params:
+        defaultValue:
+          dataType: mixed
+          name: ispm
+          parameters:
+            description: compressed pickles files in a zip file
+            format: train_x and train_y dataframes
+          tag: timeseries
+          version: 1.0.0
+        isOptional: true
+        parameterType: STRUCT
+      datasetsharing_api_url:
+        defaultValue: http://datasetsharing-service.default.svc.cluster.local:8080
+        isOptional: true
+        parameterType: STRING
+      timescale_db_params:
+        defaultValue:
+          dbname: ile
+          host: timescale-service.default.svc.cluster.local
+          password: admin
+          port: '5432'
+          user: admin
+        isOptional: true
+        parameterType: STRUCT
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.8.0
+---
+platforms:
+  kubernetes:
+    deploymentSpec:
+      executors:
+        exec-dataset-creation:
+          imagePullPolicy: Always

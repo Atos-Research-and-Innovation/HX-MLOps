@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: torchserve-pvc
+spec:
+  # volumeName: torchserve-pv
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage:  {{ .Values.persistentVolumeClaim.storage}}

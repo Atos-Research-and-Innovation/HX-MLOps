@@ -1,0 +1,14 @@
+## Expose the kubeflow service to be accessed from outside the cluster (LoadBalancer).
+## or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.
+## ref: http://kubernetes.io/docs/user-guide/services/
+
+uiService:
+  type: ClusterIP
+  clusterIP: ~
+  nodePort: 30080
+  loadBalancerIP: ~
+  annotations: {}
+
+
+uiIngress:
+  enabled: true

@@ -1,0 +1,50 @@
+replicaCount: 1
+nodeSelector: {}
+
+imageCredentials:
+  enabled: false
+  registry: xxxx
+  username: xxxx
+  password: xxxx
+  email: xxxx
+
+image:
+  repository: bitnami/minio
+  tag: "2024.8.26"
+
+minioCredentials:
+  MINIO_ROOT_USER: xxxx
+  MINIO_ROOT_PASSWORD: xxxx
+
+persistentVolumeClaim:
+  storage: 2Gi
+
+
+
+## Expose the MinIO service to be accessed from outside the cluster (LoadBalancer service).
+## or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.
+## ref: http://kubernetes.io/docs/user-guide/services/
+##
+apiService:
+  type: ClusterIP
+  clusterIP: ~
+  port: "9000"
+  nodePort: 30080
+  loadBalancerIP: ~
+  annotations: {}
+
+
+consoleService:
+  type: ClusterIP
+  clusterIP: ~
+  port: "9001"
+  nodePort: 30443
+  loadBalancerIP: ~
+  annotations: {}
+
+
+consoleIngress:
+  enabled: true
+
+apiIngress:
+  enabled: true

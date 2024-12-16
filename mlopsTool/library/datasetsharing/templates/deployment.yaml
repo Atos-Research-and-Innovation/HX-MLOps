@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: datasetsharing-deployment
+  labels:
+    app: datasetsharing
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: datasetsharing
+  template:
+    metadata:
+      labels:
+        app: datasetsharing
+    spec:
+      {{ if .Values.imageCredentials.enabled }} 
+      imagePullSecrets:
+      - name: registry-datasetsharing-credentials
+      {{ end }}
+      containers:
+      - name: datasetsharing
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - secretRef:
+            name: datasetsharing-credentials

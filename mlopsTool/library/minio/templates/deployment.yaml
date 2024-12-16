@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio-deployment
+  labels:
+    app: minio
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      {{ if .Values.imageCredentials.enabled }}
+      imagePullSecrets:
+      - name: registry-minio-credentials
+      {{ end }}
+      containers:
+      - name: minio
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy  | default "IfNotPresent" }}
+        envFrom:
+        - secretRef:
+            name: minio-credentials
+        ports:
+        - containerPort: 9000
+        - containerPort: 9001
+        volumeMounts:
+          - name: minio-storage
+            mountPath: /bitnami/minio/data  # Mount path in the container
+      volumes:
+      - name: minio-storage
+        persistentVolumeClaim:
+          claimName: shared-pvc
+      {{- with .Values.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsUser: 1001  # Replace with the user ID that should own the mounted directory
+        fsGroup: 1001    # Replace with the group ID that should own the mounted directory

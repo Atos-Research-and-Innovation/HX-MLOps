@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: timescale-service
+  labels:
+    app: timescale-service
+  {{- if .Values.timescaleService.annotations }}
+  annotations: {{- toYaml .Values.timescaleService.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.timescaleService.type }}
+  {{- if and (eq .Values.timescaleService.type "ClusterIP") .Values.timescaleService.clusterIP }}
+  clusterIP: {{ .Values.timescaleService.clusterIP }}
+  {{- end }}
+  ports:
+    - name: timescale
+      port: 5432
+      protocol: TCP
+      {{- if (and (eq .Values.timescaleService.type "NodePort") ( .Values.timescaleService.nodePort)) }}
+      nodePort: {{ .Values.timescaleService.nodePort }}
+      {{- else }}
+      targetPort: 5432
+      {{- end }}
+  selector:
+    app: timescale

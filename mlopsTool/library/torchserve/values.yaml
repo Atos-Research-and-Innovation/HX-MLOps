@@ -1,0 +1,87 @@
+
+replicaCount: 1
+
+imageCredentials:
+  enabled: false
+  registry: xxxx
+  username: xxxx
+  password: xxxx
+  email: xxxx
+
+image:
+  repository: pytorch/torchserve
+  tag: 0.12.0-cpu
+
+persistentVolumeClaim:
+  storage: 1Gi
+
+env:
+  TS_ENABLE_MODEL_API: "true" 
+
+
+## Expose the torchserve service to be accessed from outside the cluster (LoadBalancer).
+## or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.
+## ref: http://kubernetes.io/docs/user-guide/services/
+
+restMetricsService:
+  type: ClusterIP
+  clusterIP: ~
+  nodePort: 30080
+  loadBalancerIP: ~
+  annotations: {}
+
+
+restMetricsIngress:
+  enabled: true
+
+
+restManagmentService:
+  type: ClusterIP
+  clusterIP: ~
+  nodePort: 30080
+  loadBalancerIP: ~
+  annotations: {}
+
+
+restManagmentIngress:
+  enabled: true
+
+
+restInferenceService:
+  type: ClusterIP
+  clusterIP: ~
+  nodePort: 30080
+  loadBalancerIP: ~
+  annotations: {}
+
+
+restInferenceIngress:
+  enabled: true
+
+
+
+grpcApi2Service:
+  type: ClusterIP
+  clusterIP: ~
+  nodePort: 30080
+  loadBalancerIP: ~
+  annotations: {}
+
+
+grpcApi2Ingress:
+  enabled: true
+
+
+
+grpcApiService:
+  type: ClusterIP
+  clusterIP: ~
+  nodePort: 30080
+  loadBalancerIP: ~
+  annotations: {}
+
+
+grpcApiIngress:
+  enabled: true
+
+

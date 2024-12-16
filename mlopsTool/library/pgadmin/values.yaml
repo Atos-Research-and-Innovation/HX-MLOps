@@ -1,0 +1,32 @@
+
+replicaCount: 1
+
+imageCredentials:
+  enabled: false
+  registry: xxxx
+  username: xxxx
+  password: xxxx
+  email: xxxx
+
+image:
+  repository: dpage/pgadmin4
+  tag: 3.6
+
+pgadminCredentials:
+  PGADMIN_EMAIL: atos@eviden.com
+  PGADMIN_PASSWORD: pgadmin123
+
+persistentVolumeClaim:
+  storage: 2Gi
+
+
+consoleService:
+  type: ClusterIP
+  clusterIP: ~
+  nodePort: 30443
+  loadBalancerIP: ~
+  annotations: {}
+
+
+consoleIngress:
+  enabled: true

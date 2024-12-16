@@ -1,0 +1,32 @@
+
+replicaCount: 1
+
+imageCredentials:
+  enabled: false
+  registry: xxxx
+  username: xxxx
+  password: xxxx
+  email: xxxx
+
+image:
+  repository: postgres
+  tag: 12.4
+  env:
+    postgresDbName: test
+
+postgresCredentials:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres123
+
+persistentVolumeClaim:
+  storage: 2Gi
+
+postgresService:
+  type: NodePort
+  clusterIP: ~
+  nodePort: 30098
+  loadBalancerIP: ~
+  annotations: {}
+
+postgresIngress:
+  enabled: true

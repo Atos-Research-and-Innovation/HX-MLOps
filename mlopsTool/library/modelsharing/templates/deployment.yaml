@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modelsharing-deployment
+  labels:
+    app: modelsharing
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: modelsharing
+  template:
+    metadata:
+      labels:
+        app: modelsharing
+    spec:
+      {{ if .Values.imageCredentials.enabled }} 
+      imagePullSecrets:
+      - name: registry-modelsharing-credentials
+      {{ end }}
+      containers:
+      - name: modelsharing
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - secretRef:
+            name: modelsharing-credentials

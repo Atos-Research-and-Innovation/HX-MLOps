@@ -1,0 +1,17 @@
+# 2 node (1 worker) cluster config
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: swv
+nodes:
+- role: control-plane
+  image: kindest/node:v1.28.0
+
+- role: worker
+  image: kindest/node:v1.28.0
+  extraPortMappings:
+  - containerPort: 30080
+    hostPort: 80
+  - containerPort: 30443
+    hostPort: 443
+  - containerPort: 30088
+    hostPort: 30099

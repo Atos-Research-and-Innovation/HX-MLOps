@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tfserving-configmap
+data:
+  S3_ENDPOINT: {{ .Values.tfservingConfigmap.S3_ENDPOINT }}
+  MODEL_CONFIG_BASE_PATH: {{ .Values.tfservingConfigmap.MODEL_CONFIG_BASE_PATH }}

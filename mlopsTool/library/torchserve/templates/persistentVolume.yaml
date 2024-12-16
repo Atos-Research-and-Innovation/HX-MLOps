@@ -1,0 +1,12 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: torchserve-pv
+spec:
+  storageClassName: local-path # Depending on the storageclass of the cluster
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/torchserve/model-store" # Path on the host

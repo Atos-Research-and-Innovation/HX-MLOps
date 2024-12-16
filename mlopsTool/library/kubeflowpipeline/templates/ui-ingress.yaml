@@ -1,0 +1,36 @@
+{{- if .Values.uiIngress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: kubeflow
+  name: ui-ingress-kfpipeline
+  labels:
+    app: ui-ingress-kfpipeline
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^(/kfpipeline)$ $1/ permanent;  # Rewrite /kfpipeline to /kfpipeline/ to handle missing trailing slash
+      sub_filter 'href="/' 'href="/kfpipeline/';
+      sub_filter 'src="/' 'src="/kfpipeline/';
+      sub_filter_once off;  # Apply sub_filter to all occurrences
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /kfpipeline(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: ml-pipeline-ui
+                port: 
+                  number: 3000
+          - path: /ml_metadata(\..*)?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: metadata-grpc-service
+                port: 
+                  number: 8080
+{{- end }}

@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: torchserve-service-rest-inference
+  labels:
+    app: torchserve-service-rest-inference
+  {{- if .Values.restInferenceService.annotations }}
+  annotations: {{- toYaml .Values.restInferenceService.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.restInferenceService.type }}
+  {{- if and (eq .Values.restInferenceService.type "ClusterIP") .Values.restInferenceService.clusterIP }}
+  clusterIP: {{ .Values.restInferenceService.clusterIP }}
+  {{- end }}
+  ports:
+    - name: torchserve-rest-inference
+      port: 8080
+      protocol: TCP
+      {{- if (and (eq .Values.restInferenceService.type "NodePort") ( .Values.restInferenceService.nodePort)) }}
+      nodePort: {{ .Values.restInferenceService.nodePort }}
+      {{- else }}
+      targetPort: 8080
+      {{- end }}
+  selector:
+    app: torchserve

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tfserving-deployment
+  labels:
+    app: tfserving
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: tfserving
+  template:
+    metadata:
+      labels:
+        app: tfserving
+    spec:
+      {{ if .Values.imageCredentials.enabled }} 
+      imagePullSecrets:
+      - name: registry-tfserving-credentials
+      {{ end }}
+      containers:
+      - name: tfserving
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        args:
+        - "--model_config_file_poll_wait_seconds=10"
+        envFrom:
+        - secretRef:
+            name: tfserving-credentials
+        - configMapRef:
+            name: tfserving-configmap
+        ports:
+        - containerPort: 8500
+        - containerPort: 8501
+        volumeMounts:
+          - name: tfserving-storage
+            mountPath: /models  # Mount path in the container
+      volumes:
+      - name: tfserving-storage
+        persistentVolumeClaim:
+          claimName: tfserving-pvc

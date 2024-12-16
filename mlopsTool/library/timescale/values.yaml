@@ -1,0 +1,29 @@
+
+replicaCount: 1
+
+imageCredentials:
+  enabled: false
+  registry: xxxx
+  username: xxxx
+  password: xxxx
+  email: xxxx
+
+image:
+  repository: timescale/timescaledb-ha
+  tag: pg16
+  env:
+    timescaleDbName: ile
+
+timescaleCredentials:
+  POSTGRES_USER: xxxx
+  POSTGRES_PASSWORD: xxxx
+
+persistentVolumeClaim:
+  storage: 2Gi
+
+timescaleService:
+  type: NodePort
+  clusterIP: ~
+  nodePort: 30088
+  loadBalancerIP: ~
+  annotations: {}

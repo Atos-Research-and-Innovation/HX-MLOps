@@ -1,0 +1,12 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: tfserving-pv
+spec:
+  storageClassName: local-path # Depending on the storageclass of the cluster
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/tf-serving-s3/models"

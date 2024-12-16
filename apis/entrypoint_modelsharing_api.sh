@@ -1,0 +1,3 @@
+#!/bin/sh
+
+uvicorn src.api.modelsharing.main:app --host 0.0.0.0 --port 8080 --workers 1

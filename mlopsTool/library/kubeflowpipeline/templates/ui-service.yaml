@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: kubeflow
+  name: kfpipeline-ui-service
+  labels:
+    app: kfpipeline-ui-service
+  {{- if .Values.uiService.annotations }}
+  annotations: {{- toYaml .Values.uiService.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.uiService.type }}
+  {{- if and (eq .Values.uiService.type "ClusterIP") .Values.uiService.clusterIP }}
+  clusterIP: {{ .Values.uiService.clusterIP }}
+  {{- end }}
+  ports:
+    - name: kf-pipeline
+      port: 3000
+      protocol: TCP
+      {{- if (and (eq .Values.uiService.type "NodePort") ( .Values.uiService.nodePort)) }}
+      nodePort: {{ .Values.uiService.nodePort }}
+      {{- else }}
+      targetPort: 3000
+      {{- end }}
+  selector:
+    app: ml-pipeline-ui
