@@ -1,6 +1,0 @@
-services: 
-
-  pytorchCpuPipeline: 
-    build: .
-    image: smlops-hexa-x-ii:1.0.0
-    entrypoint: sleep infinity
