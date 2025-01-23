@@ -8,7 +8,7 @@
 - [Technologies Used](#technologies-used)
 - [Installation Guide](#installation-guide)
 - [User Guide](#user-guide)
-- [Build a MLOps multistakeholder ecosystem](#build-a-mlops-multistakeholder-ecosystem)
+<!-- - [Build a MLOps multistakeholder ecosystem](#build-a-mlops-multistakeholder-ecosystem) -->
 
 <!-- tocstop -->
 
@@ -148,5 +148,60 @@ The previous command output must be the code that is shown in the figure 3.
 
 ## User Guide
 
+### List of Options
 
-## Build a MLOps multistakeholder ecosystem
+The following are the options that the CLI collects.
+
+#### 1️⃣ Help
+
+It is possible to add "--help" at the end of each command to get information about it. The following are examples used to get information over specific commands:
+
+```sh
+    # Get general help
+    python -m hxMLOps --help
+    # Get information from a specific command (check)
+    python -m hxMLOps check --help
+```
+
+#### 2️⃣ version
+
+There is an option to get the CLI version:
+
+```sh
+    python -m hxMLOps --version
+```
+
+### List of commands
+
+The following are the commands that the CLI collects.
+
+#### 1️⃣ init
+
+It groups 3 commands: 
+
+- **new_config**: It allow user to link the CLI with the domain (kubernetes cluster) where MLOps workflow will be configured. It is a guided command that will allow you to configure up to 3 domains at the same time. The command internally checks the domains configured in the .kubeconfig file, so it must be accessible to the CLI.
+- **set_default_domain**: As the previous command allow users to config up to 3 domains. With this command, the user can select the default domain. 
+- **show_config**: Show the current configuration
+
+```sh
+    python -m hxMLOps init new_config 
+    python -m hxMLOps init set_default_domain 
+    python -m hxMLOps init show_config 
+```
+
+#### 2️⃣ check
+
+Command in charge of checking the connection to different domains (check the connection between the CLI and each domain previously configured).
+
+```sh
+    python -m hxMLOps check connection
+```
+
+#### 3️⃣ component, link and stage commands
+
+Component, link and stage are the commands that allow interaction with the modules integrated in the tool. 
+
+
+
+
+<!-- ## Build a MLOps multistakeholder ecosystem -->
