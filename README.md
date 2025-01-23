@@ -5,9 +5,10 @@
 <!-- toc -->
 
 - [Overview](#Overview)
-- [Technologies Used](#Technolgies)
-- [Installation Guide](#UserGuide)
-- [User Guide](#UserGuide)
+- [Technologies Used](#technologies-used)
+- [Installation Guide](#installation-guide)
+- [User Guide](#user-guide)
+- [Build a MLOps multistakeholder ecosystem](#build-a-mlops-multistakeholder-ecosystem)
 
 <!-- tocstop -->
 
@@ -22,7 +23,7 @@ figure provides an overview of the operational scope of the HX-MLOps system, ill
 - The S-MLOps system enables independent workflow creation for each domain, managing inter-module communication and energy measurement at each stage.
 
 <p align="center">
-  <img src="./documentation/Operational-scope.png" alt="Alt text" width="50%">
+  <img src="./documentation/Operational-scope.png" alt="Alt text">
 </p>
 <p align="center"><em>Figure 1: Overview of the operational scope of the S-MLOps system.</em></p>
 
@@ -58,7 +59,7 @@ Links: These modules facilitate the exchange of data, such as datasets or traine
 
 
 <p align="center">
-  <img src="./documentation/visual_representation.png" alt="Alt text" width="60%">
+  <img src="./documentation/visual_representation.png" alt="Alt text">
 </p>
 <p align="center"><em>Figure 2: Visual representation of the types of modules included in the HX-MLOps CLI.</em></p>
 
@@ -140,7 +141,7 @@ After installing the dependencies, verify that it is possible to run the CLI wit
 The previous command output must be the code that is shown in the figure 3.
 
 <p align="center">
-  <img src="./documentation/HX-MLOps.png" alt="Alt text" width="50%">
+  <img src="./documentation/HX-MLOps.png" alt="Alt text">
 </p>
 <p align="center"><em>Figure 3: Screenshot of the S-MLOps CLI.</em></p>
 
@@ -148,4 +149,4 @@ The previous command output must be the code that is shown in the figure 3.
 ## User Guide
 
 
-## Build a MLOps multi-stakeholder ecosystem
+## Build a MLOps multistakeholder ecosystem
