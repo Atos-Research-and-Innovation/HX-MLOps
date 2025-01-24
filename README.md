@@ -150,38 +150,38 @@ The previous command output must be the code that is shown in the figure 3.
 
 ### List of Options
 
-The following are the options that the CLI collects.
+The following are the options that the CLI provides.
 
 #### 1️⃣ Help
 
-It is possible to add "--help" at the end of each command to get information about it. The following are examples used to get information over specific commands:
+You can add `--help` at the end of each command to get information about it. The following are examples of how to retrieve help for specific commands:
 
 ```sh
     # Get general help
     python -m hxMLOps --help
-    # Get information from a specific command (check)
+    # Get information about a specific command (check)
     python -m hxMLOps check --help
 ```
 
-#### 2️⃣ version
+#### 2️⃣ Version
 
-There is an option to get the CLI version:
+To check the CLI version, use the following command:
 
 ```sh
     python -m hxMLOps --version
 ```
 
-### List of commands
+### List of Commands
 
-The following are the commands that the CLI collects.
+The following are the commands that the CLI supports.
 
 #### 1️⃣ init
 
-It groups 3 commands: 
+This command groups three subcommands:
 
-- **new_config**: It allow user to link the CLI with the domain (kubernetes cluster) where MLOps workflow will be configured. It is a guided command that will allow you to configure up to 3 domains at the same time. The command internally checks the domains configured in the .kubeconfig file, so it must be accessible to the CLI.
-- **set_default_domain**: As the previous command allow users to config up to 3 domains. With this command, the user can select the default domain. 
-- **show_config**: Show the current configuration
+- **new_config**: Allows the user to link the CLI with the domain (Kubernetes cluster) where the MLOps workflow will be configured. This is an interactive command that enables the configuration of up to three domains simultaneously. It internally checks the domains configured in the `.kubeconfig` file, so this file must be accessible to the CLI.
+- **set_default_domain**: Since the previous command allows users to configure up to three domains, this command lets the user select the default domain.
+- **show_config**: Displays the current configuration.
 
 ```sh
     python -m hxMLOps init new_config 
@@ -191,17 +191,73 @@ It groups 3 commands:
 
 #### 2️⃣ check
 
-Command in charge of checking the connection to different domains (check the connection between the CLI and each domain previously configured).
+This command verifies the connection between the CLI and each previously configured domain.
 
 ```sh
     python -m hxMLOps check connection
 ```
 
-#### 3️⃣ component, link and stage commands
+The command returns whether the connection is successful or not.
 
-Component, link and stage are the commands that allow interaction with the modules integrated in the tool. 
+#### 3️⃣ component, link, and stage commands
+
+The `component`, `link`, and `stage` commands allow interaction with the different modules integrated into the tool. Each command provides a set of subcommands to perform specific actions related to MLOps workflows:
+
+- **create**: Deploys the module given as a parameter.
+- **delete**: Deletes the module given as a parameter.
+- **info**: Displays information regarding the asset name given as a parameter. Both general asset information and the configuration file to be filled in are displayed.
+- **status**: Shows the status of an asset given as a parameter.
+
+To apply any of these actions, you must specify the group to which the module belongs and the specific module name.
+
+For components, the available groups are:
+
+- `energy_measurement_asset`: Scaphandre and prometheus.
+- `ml_toolkit`: kubeflowPipeline
+- `monitoring`: grafana
+- `serving_platform`: torchserve an tfserving
+- `storage`: postgres, minio, pgadmin, timescale
+
+For links, the available groups are:
+
+- `api`: datasetsharing and modelsharing.
+
+You can list the available groups using:
+
+```sh
+    python3 -m mlopsTool {type of module e.g component} --help
+```
+
+You can list the modules using:
+
+```sh
+    python3 -m mlopsTool {type of module e.g component} {action e.g create} --help
+```
+
+ ### Using Helm Charts for Module Configuration
+
+To apply an action to a module, you need to provide the "values" file from the Helm chart of the component. If no file is provided, the default configuration will be applied. The argument is the following:
+
+```sh
+    python3 -m mlopsTool component storage create pgadmin --file {file_path}
+```
+
+You can list the available "values" files for each component using the following command:
+
+```sh
+    python3 -m mlopsTool component list-values
+```
+
+This allows you to understand the specific configuration of each module before applying an action.
+
+
+
+
 
 
 
 
 <!-- ## Build a MLOps multistakeholder ecosystem -->
+
+
+
